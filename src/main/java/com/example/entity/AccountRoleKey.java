@@ -4,7 +4,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Embeddable
 public class AccountRoleKey implements Serializable {
 
@@ -14,27 +18,8 @@ public class AccountRoleKey implements Serializable {
     @Column(name = "role_id")
     private int roleId;
 
-    public AccountRoleKey() {
-    }
-
     public AccountRoleKey(String userName, int roleId) {
         this.userName = userName;
-        this.roleId = roleId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
         this.roleId = roleId;
     }
 

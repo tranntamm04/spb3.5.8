@@ -2,7 +2,10 @@ package com.example.entity;
 
 import jakarta.persistence.*;
 import java.util.Set;
+import lombok.*;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "role")
 public class Role {
@@ -19,29 +22,5 @@ public class Role {
     private Set<AccountRole> accountRoles;
 
     public Role() {
-    }
-
-    public int getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public Set<AccountRole> getAccountRoles() {
-        return accountRoles;
-    }
-
-    public void setAccountRoles(Set<AccountRole> accountRoles) {
-        this.accountRoles = accountRoles;
     }
 }

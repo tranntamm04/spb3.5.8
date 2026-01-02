@@ -41,7 +41,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ CHUẨN – KHÔNG DEPRECATED
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
 
@@ -70,12 +69,10 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/login",
-                    "/register",
-                    "/change-password",
-                    "/product/**",
-                    "/bill/**",
-                    "/customer/viewUser/**"
+                        "/login", "/register", "/change-password", "/cart",
+                        "/product/viewProduct/**", "/product/*",
+                        "/customer/createCustomer", "/customer/viewUser/**", "/bill/duyet/**",
+                        "/bill/billDetail/**", "/bill/xem/**", "/bill/payment", "/employee/listAccount", "/api/chat/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
