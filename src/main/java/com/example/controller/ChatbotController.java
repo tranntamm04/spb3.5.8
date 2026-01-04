@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chat")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("*")
 public class ChatbotController {
 
     @Autowired

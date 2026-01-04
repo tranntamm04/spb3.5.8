@@ -20,8 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@CrossOrigin("http://localhost:4200")
-@RequestMapping(value = "/product")
+@CrossOrigin("*")
+@RequestMapping(value = "/api/product")
 public class ProductController {
 
     @Autowired
@@ -44,7 +44,7 @@ public class ProductController {
 
     @RequestMapping(value = "/listPromotion", method = RequestMethod.GET)
     public ResponseEntity<List<Promotion>> getAllPromotion() {
-        List<Promotion> promotions = promotionService.findAll();
+        List<Promotion> promotions = promotionService.getAllPromotions();
         if (promotions.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -77,7 +77,7 @@ public class ProductController {
             return new ResponseEntity<>(bindingResult.getFieldErrors(),
                     HttpStatus.NOT_ACCEPTABLE);
         }
-        Promotion promotion = promotionService.findById(productDTO.getIdPromotion());
+        Promotion promotion = promotionService.getPromotionById(productDTO.getIdPromotion());
         ProductType productType = productTypeService.findById(productDTO.getIdType());
         String img = productDTO.getAvt();
         img = img.substring(12, img.length());

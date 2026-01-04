@@ -11,15 +11,43 @@ import java.util.List;
 @Service
 public class PromotionServiceImpl implements PromotionService {
     @Autowired
-    PromotionRepository promotionRepository;
+    private PromotionRepository promotionRepository;
 
     @Override
-    public List<Promotion> findAll() {
-        return this.promotionRepository.findAll();
+    public Promotion savePromotion(Promotion promotion) {
+        return promotionRepository.save(promotion);
     }
 
     @Override
-    public Promotion findById(int idPromotion) {
-        return this.promotionRepository.findById(idPromotion).orElse(null);
+    public List<Promotion> getAllPromotions() {
+        return promotionRepository.findAll();
+    }
+
+    @Override
+    public Promotion getPromotionById(int id) {
+        return promotionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khuyến mãi id=" + id));
+    }
+
+    @Override
+    public Promotion updatePromotion(int id, Promotion promotionDetails) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khuyến mãi id=" + id));
+        // Cập nhật các trường
+        if (promotionDetails.getNamePromotion() != null) {
+            promotion.setNamePromotion(promotionDetails.getNamePromotion());
+        }
+        if (promotionDetails.getTypePromotion() != null) {
+            promotion.setTypePromotion(promotionDetails.getTypePromotion());
+        }
+        promotion.setPromotionalValue(promotionDetails.getPromotionalValue());
+        promotion.setDateStart(promotionDetails.getDateStart());
+        promotion.setDateEnd(promotionDetails.getDateEnd());
+        return promotionRepository.save(promotion);
+    }
+
+    @Override
+    public void deletePromotionById(int id) {
+        promotionRepository.deleteById(id);
     }
 }

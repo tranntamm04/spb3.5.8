@@ -23,8 +23,8 @@ import com.example.service.RoleService;
 import jakarta.validation.Valid;
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
-@RequestMapping(value = "/customer")
+@CrossOrigin("*")
+@RequestMapping(value = "/api/customer")
 @RestController
 public class CustomerController {
     @Autowired

@@ -8,8 +8,8 @@ import com.example.entity.Order;
 import com.example.service.OrderService;
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
-@RequestMapping("/order")
+@CrossOrigin("*")
+@RequestMapping("/api/order")
 @RestController
 public class OrderController {
     @Autowired

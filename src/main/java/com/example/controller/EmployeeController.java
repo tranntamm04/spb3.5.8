@@ -17,8 +17,8 @@ import com.example.service.*;
 import jakarta.validation.Valid;
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
-@RequestMapping(value = "/employee")
+@CrossOrigin("*")
+@RequestMapping(value = "/api/employee")
 @RestController
 public class EmployeeController {
 

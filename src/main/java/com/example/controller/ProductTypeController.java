@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/productType")
+@RequestMapping("/api/productType")
 @CrossOrigin("*")
 public class ProductTypeController {
 
@@ -47,7 +47,7 @@ public class ProductTypeController {
     public ProductTypeDTO create(@RequestBody ProductTypeDTO dto) {
         // map DTO -> Entity
         ProductType pt = new ProductType();
-        pt.setIdType(dto.getIdType()); // ID phải gửi từ client
+        pt.setIdType(dto.getIdType());
         pt.setNameType(dto.getNameType());
         pt.setAvt(dto.getAvt());
         pt.setDescription(dto.getDescription());

@@ -29,7 +29,7 @@ public class Product {
     private String pin;
 
     @ManyToOne(targetEntity = Promotion.class)
-    @JoinColumn(name = "idPromotion", referencedColumnName = "idPromotion")
+    @JoinColumn(name = "id_Promotion", referencedColumnName = "id_Promotion")
     private Promotion promotion;
 
     @ManyToOne(targetEntity = ProductType.class)

@@ -19,8 +19,8 @@ import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
-@RequestMapping("/bill")
+@CrossOrigin("*")
+@RequestMapping("/api/bill")
 @RestController
 public class BillController {
     @Autowired

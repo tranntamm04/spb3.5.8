@@ -69,16 +69,18 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                        "/login", "/register", "/change-password", "/cart",
-                        "/product/viewProduct/**", "/product/*",
-                        "/customer/createCustomer", "/customer/viewUser/**", "/bill/duyet/**",
-                        "/bill/billDetail/**", "/bill/xem/**", "/bill/payment", "/employee/listAccount", "/api/chat/**"
+                        "/login", "/register",
+                        "/api/product/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
-                    "/employee/**",
-                    "/customer/**",
-                    "/productType/**"
+                    "/api/bill/**", "/change-password"
+                ).authenticated()
+                .requestMatchers(
+                    "/api/employee/**",
+                    "/api/customer/**",
+                    "/api/productType/**",
+                    "/api/promotion/**"
                 ).hasRole("ADMIN")
                 .anyRequest().authenticated()
             );
