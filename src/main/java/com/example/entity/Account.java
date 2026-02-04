@@ -10,12 +10,12 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor 
+@NoArgsConstructor
+@Table(name = "account")
 public class Account {
     @Id
-    @NotBlank
+    @Column(length = 50)
     private String userName;
-    @Column(length = 255)
     private String password;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)

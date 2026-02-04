@@ -69,18 +69,38 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                        "/login", "/register",
-                        "/api/product/**"
+                    "/login", "/register", "/random",
+
+                    "/api/employee/**",
+
+                    "/api/customer/**", 
+
+                    "/api/product/listPromotion",
+                    "/api/product/listHomeProduct",
+                    "/api/product/searchItem/**",
+                    "/api/product/getBinhLuan/**",
+                    "/api/product/viewProduct/**",
+                    "/api/product/searchTag/**",
+                    "/api/product/createEvaluate",
+                    "/api/product/viewProductPromotion/**",
+
+                    "/api/promotion/**",
+
+                    "/api/rating/*",
+
+                      "/api/chatbot/chat"
                 ).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
-                    "/api/bill/**", "/change-password"
+                    "/api/bill/**", "/change-password", "/api/bill/*", "/api/customer/profile"
                 ).authenticated()
                 .requestMatchers(
-                    "/api/employee/**",
-                    "/api/customer/**",
-                    "/api/productType/**",
-                    "/api/promotion/**"
+                    "/api/productType/**", 
+                    "/api/product/createProduct", 
+                    "/api/product/listProduct",
+                    "/api/product/updateProduct/{id}",
+                    "/api/product/**", 
+                    "/api/bill/listBill", "/api/bill/listBillDetail", "/api/rating/*"
                 ).hasRole("ADMIN")
                 .anyRequest().authenticated()
             );

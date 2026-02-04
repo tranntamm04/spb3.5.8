@@ -7,6 +7,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "contract_detail")
 public class ContractDetail {
     @EmbeddedId
     private BillProductKey id;

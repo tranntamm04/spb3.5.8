@@ -21,6 +21,7 @@ public class Register {
     private String address;
     @NotNull
     private String userName;
+    @NotNull
     private String password;
     private int status;
 
@@ -29,7 +30,7 @@ public class Register {
 
     public Register(@NotNull String idCustomer, @NotNull String surname, @NotNull String name,
             @NotNull String gender, @NotNull String phone,
-            @NotNull String email, @NotNull String address, @NotNull String userName, String password, int status) {
+            @NotNull String email, @NotNull String address, @NotNull String userName, @NotNull String password, int status) {
         this.idCustomer = idCustomer;
         this.surname = surname;
         this.name = name;
@@ -41,5 +42,4 @@ public class Register {
         this.password = password;
         this.status = status;
     }
-
 }

@@ -1,6 +1,6 @@
 package com.example.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,16 +15,14 @@ import com.example.entity.Account;
 import com.example.service.AccountService;
 import com.example.service.LoginService;
 
+@RequiredArgsConstructor
 @Service
 public class LoginServiceImpl implements LoginService {
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    @Autowired
-    private AccountService accountService;
+    private final AccountService accountService;
 
     @Override
     public AccountResponse doLogin(String userName, String password) {
@@ -55,7 +53,7 @@ public class LoginServiceImpl implements LoginService {
                 break;
             }
         }
-        if ("".equals(role)) {
+        if (role.isEmpty()) {
             return null;
         }
         return new AccountResponse(userName, jwt, role);

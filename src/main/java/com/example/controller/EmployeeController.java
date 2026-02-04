@@ -1,6 +1,6 @@
 package com.example.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -17,25 +17,17 @@ import com.example.service.*;
 import jakarta.validation.Valid;
 import java.util.List;
 
+@RequiredArgsConstructor
 @CrossOrigin("*")
 @RequestMapping(value = "/api/employee")
 @RestController
 public class EmployeeController {
 
-    @Autowired
-    EmployeeService employeeService;
-
-    @Autowired
-    PositionService positionService;
-
-    @Autowired
-    RoleService roleService;
-
-    @Autowired
-    AccountRoleService accountRoleService;
-
-    @Autowired
-    AccountService accountService;
+    private final EmployeeService employeeService;
+    private final PositionService positionService;
+    private final RoleService roleService;
+    private final AccountRoleService accountRoleService;
+    private final AccountService accountService;
 
     @RequestMapping(value = "/listPosition", method = RequestMethod.GET)
     public ResponseEntity<List<Position>> getAllPosition() {
@@ -68,10 +60,10 @@ public class EmployeeController {
     public ResponseEntity<Employee> deleteEmployee(@PathVariable("id") String id) {
         Employee employee = employeeService.findById(id);
         if (employee == null) {
-            return new ResponseEntity<Employee>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         employeeService.deleteEmployee(id);
-        return new ResponseEntity<Employee>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/createEmployee", method = RequestMethod.POST)
@@ -88,11 +80,9 @@ public class EmployeeController {
         AccountRole accountRole = new AccountRole(accountRoleKey, account, role);
         accountRoleService.save(accountRole);
         Position position = positionService.findById(accountEmployee.getPositionId());
-        String img = accountEmployee.getAvtUrl();
-        img = img.substring(12, img.length());
         Employee employee = new Employee(accountEmployee.getIdEmployee(), accountEmployee.getFullName(),
                 accountEmployee.getDateOfBirth(),
-                accountEmployee.getEmail(), accountEmployee.getAddress(), accountEmployee.getPhone(), img, account,
+                accountEmployee.getEmail(), accountEmployee.getAddress(), accountEmployee.getPhone(), accountEmployee.getRegisterDate(), account,
                 position);
         employeeService.saveEmployee(employee);
         HttpHeaders headers = new HttpHeaders();
@@ -118,7 +108,7 @@ public class EmployeeController {
         }
         AccountEmployee accountEmployee = new AccountEmployee(employeeObj.getIdEmployee(), employeeObj.getFullName(),
                 employeeObj.getDateOfBirth(),
-                employeeObj.getEmail(), employeeObj.getAddress(), employeeObj.getPhone(), employeeObj.getAvtUrl(),
+                employeeObj.getEmail(), employeeObj.getAddress(), employeeObj.getPhone(), employeeObj.getRegisterDate(),
                 employeeObj.getPosition().getPositionId(),
                 employeeObj.getAccount().getUserName(), employeeObj.getAccount().getPassword());
 

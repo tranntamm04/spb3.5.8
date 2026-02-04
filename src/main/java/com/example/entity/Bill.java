@@ -3,35 +3,51 @@ package com.example.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
+@Entity
+@Table(name = "bill")
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
 public class Bill {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_bill")
     private int idBill;
-    private LocalDate dateFounded;
+
+    @Column(name = "date_founded")
+    private LocalDateTime dateFounded;
+
+    @Column(name = "received")
     private String received;
+
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "address")
     private String address;
+
+    @Column(name = "payment_methods")
     private String paymentMethods;
+
+    @Column(name = "total_money")
     private float totalMoney;
+
+    @Column(name = "status")
     private int status;
 
-    @ManyToOne(targetEntity = Customer.class)
-    @JoinColumn(name = "idCustomer", referencedColumnName = "idCustomer")
-    // @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "id_customer", referencedColumnName = "id_customer")
     private Customer customer;
 
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL)
     @JsonIgnore
-    Set<ContractDetail> contractDetails;
+    private Set<ContractDetail> contractDetails;
 
-    public Bill(LocalDate dateFounded, String received, String phone, String address, String paymentMethods,
+    public Bill(LocalDateTime dateFounded, String received, String phone, String address, String paymentMethods,
             float totalMoney, int status, Customer customer) {
         this.dateFounded = dateFounded;
         this.received = received;
@@ -41,5 +57,10 @@ public class Bill {
         this.totalMoney = totalMoney;
         this.status = status;
         this.customer = customer;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.dateFounded = LocalDateTime.now();
     }
 }

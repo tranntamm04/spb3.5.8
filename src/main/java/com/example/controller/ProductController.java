@@ -1,189 +1,101 @@
 package com.example.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.dto.ProductDTO;
+import com.example.entity.Product;
+import com.example.entity.Rating;
+import com.example.service.ProductService;
+import com.example.service.RatingService;
+import jakarta.validation.*;
+import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import com.example.dto.EvaluateDTO;
-import com.example.dto.ProductDTO;
-import com.example.entity.*;
-import com.example.service.*;
 
-import jakarta.validation.Valid;
-import java.time.LocalDate;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @CrossOrigin("*")
-@RequestMapping(value = "/api/product")
+@RequestMapping("/api/product")
 public class ProductController {
 
-    @Autowired
-    ProductService productService;
+    private final ProductService productService;
+    private final RatingService ratingService;
 
-    @Autowired
-    ProductTypeService productTypeService;
-
-    @Autowired
-    PromotionService promotionService;
-
-    @Autowired
-    EvaluateService evaluateService;
-
-    @Autowired
-    CustomerService customerService;
-
-    @Autowired
-    EvaluatesService evaluatesService;
-
-    @RequestMapping(value = "/listPromotion", method = RequestMethod.GET)
-    public ResponseEntity<List<Promotion>> getAllPromotion() {
-        List<Promotion> promotions = promotionService.getAllPromotions();
-        if (promotions.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(promotions, HttpStatus.OK);
+    @GetMapping("/listProduct")
+    public ResponseEntity<Page<Product>> getAllProduct(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return productService.getAllProductResponse(pageable);
     }
 
-    @RequestMapping(value = "/listProduct", method = RequestMethod.GET)
-    public ResponseEntity<Page<Product>> getAllProduct(@PageableDefault(size = 6) Pageable pageable) {
-        Page<Product> products = productService.getAllProduct(pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(products, HttpStatus.OK);
+    @DeleteMapping("/deleteProduct/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
+        return productService.deleteProductResponse(id);
     }
 
-    @RequestMapping(value = "/deleteProduct/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Product> deleteProduct(@PathVariable("id") int id) {
-        Product product = productService.findById(id);
-        if (product == null) {
-            return new ResponseEntity<Product>(HttpStatus.NOT_FOUND);
-        }
-        productService.deleteCustomer(id);
-        return new ResponseEntity<Product>(HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/createProduct", method = RequestMethod.POST)
-    public ResponseEntity<List<FieldError>> createProduct(@RequestBody @Valid ProductDTO productDTO,
+    @PostMapping("/createProduct")
+    public ResponseEntity<List<FieldError>> createProduct(
+            @Valid @RequestBody ProductDTO productDTO,
             BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(bindingResult.getFieldErrors(),
-                    HttpStatus.NOT_ACCEPTABLE);
-        }
-        Promotion promotion = promotionService.getPromotionById(productDTO.getIdPromotion());
-        ProductType productType = productTypeService.findById(productDTO.getIdType());
-        String img = productDTO.getAvt();
-        img = img.substring(12, img.length());
-        System.out.println(img);
-        Product product = new Product(productDTO.getProductName(), img, productDTO.getPrice(), 1, 
-        productDTO.getQuantity(), 0, 4, productDTO.getScreen(), productDTO.getHdh(), 
-        productDTO.getCamTr(), productDTO.getCamSau(), productDTO.getRam(), productDTO.getRom(), 
-        productDTO.getChip(), productDTO.getPin(), promotion, productType);
-        productService.saveProduct(product);
-        HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<>(headers, HttpStatus.CREATED);
+        return productService.createProductResponse(productDTO, bindingResult);
     }
 
-    @GetMapping(value = "/viewProduct/{id}")
+    @GetMapping("/viewProduct/{id}")
     public ResponseEntity<ProductDTO> detailProduct(@PathVariable int id) {
-        Product product = this.productService.findById(id);
-        if (product == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        ProductDTO productDTO = new ProductDTO(product.getIdProduct(), product.getProductName(), 
-        product.getAvt(), product.getPrice(),  product.getStatus(), product.getQuantity(), 
-        product.getNumOfReview(), product.getNumOfStar(), product.getScreen(), product.getHdh(), 
-        product.getCamTr(), product.getCamSau(), product.getRam(), product.getRom(), product.getChip(), 
-        product.getPin(), product.getProductType().getIdType(), product.getPromotion().getIdPromotion(),
-        product.getProductType().getNameType());
+        return productService.getDetailProductResponse(id);
+    }
 
-        return new ResponseEntity<>(productDTO, HttpStatus.OK);
+    @GetMapping("/viewProductPromotion/{id}")
+    public ResponseEntity<Product> viewProductPromotion(@PathVariable int id) {
+        return productService.getProductPromotionResponse(id);
     }
 
     @PutMapping("/updateProduct/{id}")
-    public ResponseEntity<ProductDTO> updateEmployee(@Valid @RequestBody ProductDTO productDTO,
-            BindingResult bindingResult, @PathVariable int id) {
-        if (!bindingResult.hasErrors()) {
-            productService.update(productDTO, id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<?> updateProduct(
+            @Valid @RequestBody ProductDTO productDTO,
+            BindingResult bindingResult,
+            @PathVariable int id) {
+        return productService.updateProductResponse(productDTO, bindingResult, id);
     }
 
     @GetMapping("/searchTag")
-    public ResponseEntity<Page<Product>> getSearchTag(@PageableDefault(size = 6) Pageable pageable,
+    public ResponseEntity<Page<Product>> getSearchTag(
+            @PageableDefault(size = 10) Pageable pageable,
             @RequestParam("t") String t) {
-        Page<Product> products = productService.getSearchTag(t, pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(products, HttpStatus.OK);
+        return productService.searchTagResponse(t, pageable);
     }
 
-    @GetMapping("/searchItem2")
-    public ResponseEntity<Page<Product>> getSearchItem2(@PageableDefault(size = 6) Pageable pageable,
+    @GetMapping({"/searchItem", "/searchItem2"})
+    public ResponseEntity<Page<Product>> getSearchItem(
+            @PageableDefault(size = 10) Pageable pageable,
             @RequestParam("itemSearch") String itemSearch) {
-        Page<Product> products = productService.getSearchItem(itemSearch, pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(products, HttpStatus.OK);
+        return productService.searchItemResponse(itemSearch, pageable);
     }
 
-    @GetMapping("/searchItem")
-    public ResponseEntity<Page<Product>> getSearchItem(@PageableDefault(size = 9) Pageable pageable,
-            @RequestParam("itemSearch") String itemSearch) {
-        Page<Product> products = productService.getSearchItem(itemSearch, pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(products, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/listHomeProduct", method = RequestMethod.GET)
-    public ResponseEntity<Page<Product>> getAllProductHome(@PageableDefault(size = 9) Pageable pageable) {
-        Page<Product> products = productService.getAllProduct(pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(products, HttpStatus.OK);
-    }
-
-    @PostMapping("/createEvaluate")
-    public ResponseEntity<EvaluateDTO> updateEmployee(@Valid @RequestBody EvaluateDTO evaluateDTO,
-            BindingResult bindingResult) {
-        if (!bindingResult.hasErrors()) {
-            Product product = productService.findById(evaluateDTO.getIdProduct());
-            Customer customer = customerService.findById(evaluateDTO.getIdCustomer());
-            EvaluateKey evaluateKey = new EvaluateKey(evaluateDTO.getIdCustomer(), evaluateDTO.getIdProduct());
-            Evaluates evaluates = new Evaluates(evaluateKey, product, customer, evaluateDTO.getNumberOfStar(),
-                    evaluateDTO.getComment(), LocalDate.now());
-            int a = product.getNumOfReview();
-            int b = ++a;
-            product.setNumOfReview(b);
-            productService.saveProduct(product);
-            evaluatesService.save(evaluates);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @GetMapping("/listHomeProduct")
+    public ResponseEntity<Page<Product>> getAllProductHome(
+            @PageableDefault(size = 10) Pageable pageable) {
+        return productService.getAllProductResponse(pageable);
     }
 
     @RequestMapping(value = "/getBinhLuan/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Evaluates>> getAllBinhLuan(@PathVariable int id) {
-        List<Evaluates> evaluates = evaluatesService.findAll(id);
-        if (evaluates.isEmpty()) {
+    public ResponseEntity<List<Rating>> getAllBinhLuan(@PathVariable int id) {
+        List<Rating> rating = ratingService.findVisible(id);
+        if (rating.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(evaluates, HttpStatus.OK);
-    }
+        return new ResponseEntity<>(rating, HttpStatus.OK); }
 
+    @PatchMapping("/nhapkho/{id}")
+    public ResponseEntity<?> importStock(
+            @PathVariable int id,
+            @RequestParam int quantity) {
+        return productService.importStockResponse(id, quantity);
+    }
 }
+

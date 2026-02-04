@@ -50,7 +50,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setPosition(position);
             employee.setDateOfBirth(accountEmployee.getDateOfBirth());
             employee.setPhone(accountEmployee.getPhone());
-            employee.setAvtUrl(accountEmployee.getAvtUrl());
+            employee.setRegisterDate(accountEmployee.getRegisterDate());
             employee.setEmail(accountEmployee.getEmail());
             employee.setAddress(accountEmployee.getAddress());
             employee.setFullName(accountEmployee.getFullName());

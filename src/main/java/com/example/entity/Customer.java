@@ -1,8 +1,9 @@
 package com.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.Set;
 import lombok.*;
 
@@ -10,19 +11,25 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "customer")
 public class Customer {
+
     @Id
+    @Column(name = "id_customer")
     private String idCustomer;
+
     private String surname;
     private String name;
     private String gender;
     private String phone;
     private String email;
     private String address;
+    private LocalDate registerDate;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "userName", referencedColumnName = "userName")
     private Account account;
+
     private int status;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
@@ -31,10 +38,10 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonIgnore
-    Set<Evaluates> evaluates;
+    private Set<Rating> ratings;
 
     public Customer(String idCustomer, String surname, String name, String gender, String phone, String email,
-            String address, Account account, int status) {
+                    String address, LocalDate registerDate, Account account, int status) {
         this.idCustomer = idCustomer;
         this.surname = surname;
         this.name = name;
@@ -42,12 +49,13 @@ public class Customer {
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.registerDate = registerDate;
         this.account = account;
         this.status = status;
     }
 
     public Customer(String idCustomer, String surname, String name, String gender, String phone, String email,
-            String address, Account account, int status, Set<Bill> bills) {
+                    String address, LocalDate registerDate, Account account, int status, Set<Bill> bills) {
         this.idCustomer = idCustomer;
         this.surname = surname;
         this.name = name;
@@ -55,13 +63,15 @@ public class Customer {
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.registerDate = registerDate;
         this.account = account;
         this.status = status;
         this.bills = bills;
     }
 
     public Customer(String idCustomer, String surname, String name, String gender, String phone, String email,
-            String address, Account account, int status, Set<Bill> bills, Set<Evaluates> evaluates) {
+                    String address, LocalDate registerDate, Account account, int status,
+                    Set<Bill> bills, Set<Rating> ratings) {
         this.idCustomer = idCustomer;
         this.surname = surname;
         this.name = name;
@@ -69,9 +79,10 @@ public class Customer {
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.registerDate = registerDate;
         this.account = account;
         this.status = status;
         this.bills = bills;
-        this.evaluates = evaluates;
+        this.ratings = ratings;
     }
 }

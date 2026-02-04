@@ -1,52 +1,33 @@
 package com.example.controller;
 
+import com.example.dto.ChatRequest;
+import com.example.dto.ChatResponse;
 import com.example.service.ChatbotService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/chat")
 @CrossOrigin("*")
+@RequestMapping("/api/chatbot")
+@RequiredArgsConstructor
 public class ChatbotController {
 
-    @Autowired
-    private ChatbotService chatbotService;
+    private final ChatbotService chatbotService;
 
-    @PostMapping
-    public ResponseEntity<?> sendMessage(@RequestBody ChatRequest request) {
-        try {
-            String response = chatbotService.askGemini(request.getMessage());
-            return ResponseEntity.ok(new ChatResponse(response));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(new ChatResponse("Lỗi: " + e.getMessage()));
+    @PostMapping("/chat")
+    public ResponseEntity<String> chat(@RequestBody ChatRequest request) {
+
+        if (request.getQuestion() == null || request.getQuestion().isBlank()) {
+            return ResponseEntity.badRequest().body("Câu hỏi không hợp lệ");
         }
+
+        String answer = chatbotService.chat(
+                request.getSessionId(),
+                request.getQuestion()
+        );
+
+        return ResponseEntity.ok(answer);
     }
 
-    // --- DTO ---
-    public static class ChatRequest {
-        private String message;
-
-        public String getMessage() {
-            return message;
-        }
-        public void setMessage(String message) {
-            this.message = message;
-        }
-    }
-
-    public static class ChatResponse {
-        private String answer;
-
-        public ChatResponse(String answer) {
-            this.answer = answer;
-        }
-
-        public String getAnswer() {
-            return answer;
-        }
-        public void setAnswer(String answer) {
-            this.answer = answer;
-        }
-    }
 }

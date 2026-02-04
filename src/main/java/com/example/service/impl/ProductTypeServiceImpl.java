@@ -1,36 +1,83 @@
 package com.example.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.example.dto.ProductTypeDTO;
 import com.example.entity.ProductType;
 import com.example.repository.ProductTypeRepository;
 import com.example.service.ProductTypeService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductTypeServiceImpl implements ProductTypeService {
-    @Autowired
-    ProductTypeRepository productTypeRepository;
+
+    private final ProductTypeRepository productTypeRepository;
 
     @Override
-    public List<ProductType> findAll() {
-        return this.productTypeRepository.findAll();
+    public List<ProductTypeDTO> getAll() {
+        return productTypeRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductTypeDTO getById(int id) {
+        ProductType pt = productTypeRepository.findById(id).orElse(null);
+        if (pt == null) return null;
+        return toDTO(pt);
+    }
+
+    @Override
+    public ProductTypeDTO create(ProductTypeDTO dto) {
+        ProductType pt = toEntity(dto);
+        ProductType saved = productTypeRepository.save(pt);
+        return toDTO(saved);
+    }
+
+    @Override
+    public ProductTypeDTO update(int id, ProductTypeDTO dto) {
+        ProductType pt = productTypeRepository.findById(id).orElse(null);
+        if (pt == null) return null;
+
+        pt.setNameType(dto.getNameType());
+        pt.setAvt(dto.getAvt());
+        pt.setDescription(dto.getDescription());
+
+        ProductType saved = productTypeRepository.save(pt);
+        return toDTO(saved);
+    }
+
+    @Override
+    public List<ProductTypeDTO> delete(int id) {
+        productTypeRepository.deleteById(id);
+        return getAll();
+    }
+
+    private ProductTypeDTO toDTO(ProductType pt) {
+        return new ProductTypeDTO(
+                pt.getIdType(),
+                pt.getNameType(),
+                pt.getAvt(),
+                pt.getDescription()
+        );
+    }
+
+    private ProductType toEntity(ProductTypeDTO dto) {
+        ProductType pt = new ProductType();
+        pt.setIdType(dto.getIdType());
+        pt.setNameType(dto.getNameType());
+        pt.setAvt(dto.getAvt());
+        pt.setDescription(dto.getDescription());
+        return pt;
     }
 
     @Override
     public ProductType findById(int idType) {
         return this.productTypeRepository.findById(idType).orElse(null);
     }
-
-    @Override
-    public ProductType save(ProductType productType) {
-        return productTypeRepository.save(productType);
-    }
-
-    @Override
-    public void deleteById(int idType) {
-        this.productTypeRepository.deleteById(idType);
-    }
-
 }
+

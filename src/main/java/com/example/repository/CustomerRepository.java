@@ -10,7 +10,7 @@ import com.example.entity.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, String> {
-    @Query("select c from  Customer  c where c.account.userName like %:user%")
+    @Query("select c from Customer c where c.account.userName = :user")
     Customer findByUser(@Param("user") String user);
 
     @Query("select c from  Customer  c where c.idCustomer like %:name% or c.surname like %:name% or c.name like %:name% or c.address like %:name%")
