@@ -2,7 +2,6 @@ package com.example.service;
 
 import com.example.dto.RatingDTO;
 import com.example.entity.Rating;
-import com.example.entity.RatingKey;
 
 import java.util.List;
 

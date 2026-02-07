@@ -33,8 +33,8 @@ public class Product {
     private String description;
     private int sold;
 
-    @ManyToOne(targetEntity = Promotion.class)
-    @JoinColumn(name = "id_Promotion", referencedColumnName = "id_Promotion")
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "id_Promotion", referencedColumnName = "id_Promotion", nullable = true)
     private Promotion promotion;
 
     @ManyToOne(targetEntity = ProductType.class)

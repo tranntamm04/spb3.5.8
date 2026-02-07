@@ -87,6 +87,15 @@ Product findByIdWithPromotion(@Param("id") Integer id);
 """)
     List<Product> findAccessoryForChatbot();
 
+    @Query("""
+    select p
+    from Product p
+    where p.productType.idType = :typeId
+      and p.status = 1
+    order by p.idProduct
+""")
+    List<Product> findByTypeId(@Param("typeId") int typeId);
+
 }
 
 

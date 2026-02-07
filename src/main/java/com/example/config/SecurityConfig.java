@@ -73,16 +73,12 @@ public class SecurityConfig {
 
                     "/api/employee/**",
 
-                    "/api/customer/**", 
+                    "/api/customer/**",
 
-                    "/api/product/listPromotion",
-                    "/api/product/listHomeProduct",
-                    "/api/product/searchItem/**",
-                    "/api/product/getBinhLuan/**",
-                    "/api/product/viewProduct/**",
-                    "/api/product/searchTag/**",
-                    "/api/product/createEvaluate",
-                    "/api/product/viewProductPromotion/**",
+                    "/api/products",
+                    "/api/products/*",
+                    "/api/products/*/ratings",
+                    "/api/products/**",
 
                     "/api/promotion/**",
 
@@ -95,11 +91,8 @@ public class SecurityConfig {
                     "/api/bill/**", "/change-password", "/api/bill/*", "/api/customer/profile"
                 ).authenticated()
                 .requestMatchers(
-                    "/api/productType/**", 
-                    "/api/product/createProduct", 
-                    "/api/product/listProduct",
-                    "/api/product/updateProduct/{id}",
-                    "/api/product/**", 
+                    "/api/productType/**",
+                    "/api/products/**",
                     "/api/bill/listBill", "/api/bill/listBillDetail", "/api/rating/*"
                 ).hasRole("ADMIN")
                 .anyRequest().authenticated()

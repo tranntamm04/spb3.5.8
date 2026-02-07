@@ -11,12 +11,7 @@ import com.example.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-
 import java.util.List;
 
 @Service
@@ -33,12 +28,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> findByTypeId(int typeId) {
+        return productRepository.findByTypeId(typeId);
+    }
+
+    @Override
     public Product findById(int id) {
         return productRepository.findById(id).orElse(null);
     }
 
     @Override
-    public void deleteCustomer(int id) {
+    public boolean existsById(int id) {
+        return productRepository.existsById(id);
+    }
+
+    @Override
+    public void deleteProduct(int id) {
         productRepository.deleteById(id);
     }
 
@@ -48,31 +53,56 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void update(ProductDTO productDTO, int id) {
+    public void createProduct(ProductDTO dto) {
+
+        Promotion promotion = null;
+        if (dto.getIdPromotion() != null) {
+            promotion = promotionRepository
+                    .findById(dto.getIdPromotion())
+                    .orElse(null);
+        }
+
+        ProductType productType = productTypeRepository
+                .findById(dto.getIdType())
+                .orElse(null);
+
+        Product product = new Product(
+                dto.getProductName(),
+                dto.getAvt(),
+                dto.getPrice(),
+                1,
+                dto.getQuantity(),
+                0,
+                0.0,
+                dto.getEnteredDate(),
+                dto.getDescription(),
+                dto.getSold(),
+                promotion,
+                productType
+        );
+
+        saveProduct(product);
+    }
+
+
+    @Override
+    public void updateProduct(ProductDTO dto, int id) {
         Product product = findById(id);
         if (product == null) return;
 
-        Promotion promotion =
-                promotionRepository.findById(productDTO.getIdPromotion()).orElse(null);
-        ProductType productType =
-                productTypeRepository.findById(productDTO.getIdType()).orElse(null);
+        Promotion promotion = null;
+        if (dto.getIdPromotion() != null) {
+            promotion = promotionRepository
+                    .findById(dto.getIdPromotion())
+                    .orElse(null);
+        }
 
-        product.setPromotion(promotion);
-        product.setProductType(productType);
-        product.setProductName(productDTO.getProductName());
-        product.setPrice(productDTO.getPrice());
-        product.setQuantity(productDTO.getQuantity());
-        product.setAvt(productDTO.getAvt());
-        product.setEnteredDate(productDTO.getEnteredDate());
-        product.setDescription(productDTO.getDescription());
-        product.setSold(productDTO.getSold());
+        ProductType productType = productTypeRepository
+                .findById(dto.getIdType())
+                .orElse(null);
 
-        productRepository.save(product);
-    }
-
-    @Override
-    public Page<Product> getSearchTag(String t, Pageable pageable) {
-        return productRepository.searchTag(t, pageable);
+        mapDtoToProduct(dto, product, promotion, productType);
+        saveProduct(product);
     }
 
     @Override
@@ -81,135 +111,34 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<Page<Product>> getAllProductResponse(Pageable pageable) {
-        Page<Product> products = getAllProduct(pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return ResponseEntity.ok(products);
-    }
-
-    @Override
-    public ResponseEntity<Void> deleteProductResponse(int id) {
+    public boolean importStock(int id, int quantity) {
         Product product = findById(id);
-        if (product == null) {
-            return ResponseEntity.notFound().build();
-        }
-        deleteCustomer(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    public ResponseEntity<List<FieldError>> createProductResponse(
-            ProductDTO productDTO, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(
-                    bindingResult.getFieldErrors(),
-                    HttpStatus.NOT_ACCEPTABLE);
-        }
-
-        Promotion promotion =
-                promotionRepository.findById(productDTO.getIdPromotion()).orElse(null);
-        ProductType productType =
-                productTypeRepository.findById(productDTO.getIdType()).orElse(null);
-
-        Product product = new Product(
-                productDTO.getProductName(),
-                productDTO.getAvt(),
-                productDTO.getPrice(),
-                1,
-                productDTO.getQuantity(),
-                0,
-                0.0,
-                productDTO.getEnteredDate(),
-                productDTO.getDescription(),
-                productDTO.getSold(),
-                promotion,
-                productType
-        );
-
-        saveProduct(product);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @Override
-    public ResponseEntity<ProductDTO> getDetailProductResponse(int id) {
-        Product product = findById(id);
-        if (product == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        ProductDTO dto = new ProductDTO(
-                product.getIdProduct(),
-                product.getProductName(),
-                product.getAvt(),
-                product.getPrice(),
-                product.getStatus(),
-                product.getQuantity(),
-                product.getNumOfReview(),
-                product.getNumOfStar(),
-                product.getEnteredDate(),
-                product.getDescription(),
-                product.getSold(),
-                product.getProductType().getIdType(),
-                product.getPromotion().getIdPromotion(),
-                product.getProductType().getNameType()
-        );
-
-        return ResponseEntity.ok(dto);
-    }
-
-    @Override
-    public ResponseEntity<Product> getProductPromotionResponse(int id) {
-        Product product = findById(id);
-        if (product == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(product);
-    }
-
-    @Override
-    public ResponseEntity<?> updateProductResponse(
-            ProductDTO productDTO, BindingResult bindingResult, int id) {
-
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        update(productDTO, id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<Page<Product>> searchTagResponse(String t, Pageable pageable) {
-        Page<Product> products = getSearchTag(t, pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return ResponseEntity.ok(products);
-    }
-
-    @Override
-    public ResponseEntity<Page<Product>> searchItemResponse(
-            String itemSearch, Pageable pageable) {
-        Page<Product> products = getSearchItem(itemSearch, pageable);
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return ResponseEntity.ok(products);
-    }
-
-    @Override
-    public ResponseEntity<?> importStockResponse(int id, int quantity) {
-        Product product = findById(id);
-        if (product == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        if (product == null) return false;
 
         product.setQuantity(product.getQuantity() + quantity);
         saveProduct(product);
+        return true;
+    }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+    private void mapDtoToProduct(
+            ProductDTO dto,
+            Product product,
+            Promotion promotion,
+            ProductType productType) {
+
+        product.setProductName(dto.getProductName());
+        product.setPrice(dto.getPrice());
+        product.setQuantity(dto.getQuantity());
+        product.setAvt(dto.getAvt());
+        product.setEnteredDate(dto.getEnteredDate());
+        product.setDescription(dto.getDescription());
+        product.setSold(dto.getSold());
+        product.setPromotion(promotion);
+        product.setProductType(productType);
+    }
+
+    @Override
+    public Product findByIdWithPromotion(int id) {
+        return productRepository.findByIdWithPromotion(id);
     }
 }
