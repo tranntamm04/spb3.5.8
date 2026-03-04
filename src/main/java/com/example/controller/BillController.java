@@ -4,6 +4,7 @@ import com.example.dto.BillDTO;
 import com.example.entity.Bill;
 import com.example.entity.ContractDetail;
 import com.example.service.BillService;
+import com.example.service.VnPayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,11 +22,20 @@ import java.util.List;
 public class BillController {
 
     private final BillService billService;
+    private final VnPayService vnPayService;
 
     @GetMapping("/listBill")
     public ResponseEntity<Page<Bill>> getAllBill(Pageable pageable) {
         Page<Bill> bills = billService.findAll(pageable);
         return bills.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(bills);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Bill>> getAllBills() {
+        List<Bill> bills = billService.findAll();
+        return bills.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(bills);
     }
 
     @DeleteMapping("/deleteBill/{id}")
@@ -40,6 +51,24 @@ public class BillController {
         }
         billService.createBill(billDTO);
         return ResponseEntity.status(201).build();
+    }
+
+    @PostMapping("/create-vnpay")
+    public ResponseEntity<?> createVnPay(@RequestBody Map<String, Long> body) throws Exception {
+        Long amount = body.get("amount");
+        String paymentUrl = vnPayService.createPaymentUrl(amount);
+        return ResponseEntity.ok(Map.of("paymentUrl", paymentUrl));
+    }
+
+    @GetMapping("/vnpay-return")
+    public ResponseEntity<String> vnpayReturn(@RequestParam Map<String, String> params) throws Exception {
+        boolean valid = vnPayService.verifyReturn(params);
+        String responseCode = params.get("vnp_ResponseCode");
+        if (valid && "00".equals(responseCode)) {
+            return ResponseEntity.ok("Thanh toán thành công");
+        }
+
+        return ResponseEntity.badRequest().body("Thanh toán thất bại");
     }
 
     @GetMapping("/billDetail/{id}")
@@ -65,4 +94,24 @@ public class BillController {
         Page<Bill> bills = billService.searchByName(name, pageable);
         return bills.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(bills);
     }
+
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<?> cancelBill(@PathVariable int id) {
+        billService.cancelBill(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<Bill>> filterByStatus(@RequestParam(defaultValue = "1") int status, Pageable pageable) {
+        Page<Bill> bills = billService.findByStatus(status, pageable);
+        return bills.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(bills);
+    }
+
+    @GetMapping("/revenue")
+    public ResponseEntity<Long> getTotalRevenue() {
+        return ResponseEntity.ok(billService.getTotalRevenue());
+    }
+    
 }

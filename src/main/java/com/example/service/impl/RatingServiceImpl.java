@@ -79,4 +79,16 @@ public class RatingServiceImpl implements RatingService {
         product.setNumOfStar(newAvg);
         productService.saveProduct(product);
     }
+
+    @Override
+    public void replyRating(String customerId, int productId, String reply) {
+        RatingKey key = new RatingKey(customerId, productId);
+
+        ratingRepository.findById(key).ifPresent(rating -> {
+            rating.setReply(reply);
+            rating.setReplyAt(LocalDateTime.now());
+            ratingRepository.save(rating);
+        });
+    }
+
 }

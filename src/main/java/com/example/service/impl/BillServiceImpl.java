@@ -3,15 +3,16 @@ package com.example.service.impl;
 import com.example.dto.BillDTO;
 import com.example.dto.ProductDTO;
 import com.example.entity.*;
-import com.example.repository.BillRepository;
+        import com.example.repository.BillRepository;
 import com.example.repository.ContractDetailRepository;
 import com.example.repository.ProductRepository;
 import com.example.service.BillService;
 import com.example.service.CustomerService;
 import com.example.service.ProductService;
 import lombok.*;
-import org.springframework.data.domain.Page;
+        import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,31 +31,31 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public Page<Bill> findAll(Pageable pageable) {
-
         return billRepository.findAll(pageable);
     }
 
     @Override
+    public List<Bill> findAll() {
+        return billRepository.findAll(Sort.by(Sort.Direction.DESC, "idBill"));
+    }
+
+    @Override
     public Bill findById(int id) {
-        return billRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bill not found"));
+        return billRepository.findById(id).orElseThrow(() -> new RuntimeException("Bill not found"));
     }
 
     @Override
     public void deleteById(int id) {
-
         billRepository.deleteById(id);
     }
 
     @Override
     public List<Bill> findByCustomerId(String customerId) {
-
         return billRepository.findByList(customerId);
     }
 
     @Override
     public Page<Bill> searchByName(String name, Pageable pageable) {
-
         return billRepository.findByName(name, pageable);
     }
 
@@ -101,14 +102,19 @@ public class BillServiceImpl implements BillService {
     @Transactional
     public void approveBill(int billId) {
         Bill bill = findById(billId);
-        if (bill.getStatus() == 2) {
-            throw new RuntimeException("Bill đã được duyệt");
+        if (bill.getStatus() != 1) {
+            throw new RuntimeException("Bill không ở trạng thái chờ duyệt");
         }
+
         List<ContractDetail> details = contractDetailRepository.findByMaHD(billId);
         for (ContractDetail cd : details) {
-            productRepository.updateStock(cd.getProduct().getIdProduct(), cd.getQuantity()
-            );
+            int updated = productRepository.updateStock(cd.getProduct().getIdProduct(), cd.getQuantity());
+
+            if (updated == 0) {
+                throw new RuntimeException("Không đủ số lượng cho sản phẩm: " + cd.getProduct().getProductName());
+            }
         }
+
         bill.setStatus(2);
         billRepository.save(bill);
     }
@@ -118,11 +124,47 @@ public class BillServiceImpl implements BillService {
         Promotion promotion = product.getPromotion();
         if (promotion == null) return price;
         if ("PERCENT".equalsIgnoreCase(promotion.getTypePromotion())) {
-            return (int) Math.round(price * (1 - promotion.getPromotionalValue() / 100.0));
+            return (int) Math.round(price * (1 - promotion.getPromotionalValue() / 100.0) - 1000);
         }
         if ("MONEY".equalsIgnoreCase(promotion.getTypePromotion())) {
             return Math.max(price - (int) promotion.getPromotionalValue(), 0);
         }
         return price;
+    }
+
+    @Override
+    @Transactional
+    public void cancelBill(int billId) {
+
+        Bill bill = findById(billId);
+
+        if (bill.getStatus() == 2) {
+            throw new RuntimeException("Đơn hàng đã được duyệt, không thể huỷ");
+        }
+
+        if (bill.getStatus() == 0 || bill.getStatus() == 3) {
+            throw new RuntimeException("Đơn hàng đã bị huỷ trước đó");
+        }
+
+        if ("VNPAY".equalsIgnoreCase(bill.getPaymentMethods())
+                || "PAYPAL".equalsIgnoreCase(bill.getPaymentMethods())) {
+            bill.setStatus(3);
+
+        } else {
+            bill.setStatus(0);
+
+        }
+
+        billRepository.save(bill);
+    }
+
+    @Override
+    public Page<Bill> findByStatus(int status, Pageable pageable) {
+        return billRepository.findByStatus(status, pageable);
+    }
+
+    @Override
+    public Long getTotalRevenue() {
+        return billRepository.getTotalRevenue();
     }
 }

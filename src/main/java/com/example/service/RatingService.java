@@ -13,4 +13,6 @@ public interface RatingService {
     List<Rating> findAllRatings();
     void delete(String customerId, int productId);
     void updateStatus(String customerId, int productId, int status);
+    void replyRating(String customerId, int productId, String reply);
+
 }

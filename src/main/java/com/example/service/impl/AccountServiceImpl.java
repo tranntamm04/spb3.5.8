@@ -5,13 +5,13 @@ import org.springframework.stereotype.Service;
 import com.example.entity.Account;
 import com.example.repository.AccountRepository;
 import com.example.service.AccountService;
-
+import lombok.*;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class AccountServiceImpl implements AccountService {
-    @Autowired
-    AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public void save(Account account) {

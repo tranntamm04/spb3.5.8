@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.example.entity.Customer;
 
+import java.util.Optional;
+
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, String> {
     @Query("select c from Customer c where c.account.userName = :user")
@@ -15,4 +17,7 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
 
     @Query("select c from  Customer  c where c.idCustomer like %:name% or c.surname like %:name% or c.name like %:name% or c.address like %:name%")
     Page<Customer> findByAll(@Param("name") String name, Pageable pageable);
+
+    Optional<Customer> findByEmail(String email);
+
 }

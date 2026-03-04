@@ -17,26 +17,12 @@ public class Bill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_bill")
     private int idBill;
-
-    @Column(name = "date_founded")
     private LocalDateTime dateFounded;
-
-    @Column(name = "received")
     private String received;
-
-    @Column(name = "phone")
     private String phone;
-
-    @Column(name = "address")
     private String address;
-
-    @Column(name = "payment_methods")
     private String paymentMethods;
-
-    @Column(name = "total_money")
     private float totalMoney;
-
-    @Column(name = "status")
     private int status;
 
     @ManyToOne

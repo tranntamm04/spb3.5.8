@@ -30,8 +30,6 @@ public class CustomerServiceImpl implements CustomerService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /* ================= CORE LOGIC ================= */
-
     @Override
     public Page<Customer> getAllCustomer(Pageable pageable) {
         return customerRepository.findAll(pageable);
@@ -105,7 +103,6 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
     }
 
-    /* ================= RESPONSE HANDLER ================= */
 
     @Override
     public ResponseEntity<Page<Customer>> getAllCustomerResponse(Pageable pageable) {

@@ -31,6 +31,11 @@ public class Rating {
 
     @Column(columnDefinition = "TEXT")
     private String comment;
+
+    @Column(columnDefinition = "TEXT")
+    private String reply;
+
+    private LocalDateTime replyAt;
     @Column
     private int status;
     private LocalDateTime dateFounded;

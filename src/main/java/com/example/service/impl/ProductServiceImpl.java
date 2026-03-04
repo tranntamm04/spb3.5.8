@@ -1,18 +1,23 @@
 package com.example.service.impl;
 
 import com.example.dto.ProductDTO;
+import com.example.entity.InventoryHistory;
 import com.example.entity.Product;
 import com.example.entity.ProductType;
 import com.example.entity.Promotion;
+import com.example.repository.InventoryHistoryRepository;
 import com.example.repository.ProductRepository;
 import com.example.repository.ProductTypeRepository;
 import com.example.repository.PromotionRepository;
 import com.example.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final PromotionRepository promotionRepository;
     private final ProductTypeRepository productTypeRepository;
+    private final InventoryHistoryRepository inventoryHistoryRepository;
 
     @Override
     public Page<Product> getAllProduct(Pageable pageable) {
@@ -110,13 +116,34 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.searchItem(itemSearch, pageable);
     }
 
+    @Transactional
     @Override
-    public boolean importStock(int id, int quantity) {
+    public boolean importStock(int id, int quantity, String note) {
+
+        if (quantity == 0) return false;
+
         Product product = findById(id);
         if (product == null) return false;
 
-        product.setQuantity(product.getQuantity() + quantity);
-        saveProduct(product);
+        int newQuantity = product.getQuantity() + quantity;
+        if (newQuantity < 0) return false;
+
+        product.setQuantity(newQuantity);
+        productRepository.save(product);
+
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        InventoryHistory history = new InventoryHistory();
+        history.setProduct(product);
+        history.setQuantityChanged(quantity);
+        history.setNote(note);
+        history.setCreatedBy(username);
+
+        inventoryHistoryRepository.save(history);
+
         return true;
     }
 
@@ -140,5 +167,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product findByIdWithPromotion(int id) {
         return productRepository.findByIdWithPromotion(id);
+    }
+
+    @Override
+    public List<String> suggestKeyword(String keyword) {
+        return productRepository.suggestKeyword(keyword);
+    }
+
+    @Override
+    public List<Product> suggestProduct(String keyword) {
+        return productRepository.suggestProduct(keyword, PageRequest.of(0,4));
     }
 }

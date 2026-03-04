@@ -20,8 +20,7 @@ public class RatingController {
     private final RatingService ratingService;
 
     @PostMapping("/create")
-    public ResponseEntity<Void> createRating(
-            @Valid @RequestBody RatingDTO ratingDTO) {
+    public ResponseEntity<Void> createRating(@Valid @RequestBody RatingDTO ratingDTO) {
         ratingService.createRating(ratingDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -47,6 +46,16 @@ public class RatingController {
             @RequestParam int status) {
 
         ratingService.updateStatus(customerId, productId, status);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/reply")
+    public ResponseEntity<Void> replyRating(
+            @RequestParam String customerId,
+            @RequestParam int productId,
+            @RequestParam String reply) {
+
+        ratingService.replyRating(customerId, productId, reply);
         return ResponseEntity.ok().build();
     }
 }

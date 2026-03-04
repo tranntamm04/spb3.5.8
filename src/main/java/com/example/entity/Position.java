@@ -8,6 +8,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "position")
 public class Position {
     @Id
@@ -17,8 +18,4 @@ public class Position {
     @OneToMany(mappedBy = "position", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<Employee> employees;
-
-    public Position() {
-    }
-
 }

@@ -13,12 +13,14 @@ public interface BillService {
     Page<Bill> findAll(Pageable pageable);
     Bill findById(int id);
     void deleteById(int id);
-
+    void cancelBill(int billId);
     Bill createBill(BillDTO billDTO);
     List<Bill> findByCustomerId(String customerId);
     List<ContractDetail> findBillDetails(int billId);
-
+    Page<Bill> findByStatus(int status, Pageable pageable);
+    Long getTotalRevenue();
     void approveBill(int billId);
     Page<Bill> searchByName(String name, Pageable pageable);
+    List<Bill> findAll();
 }
 

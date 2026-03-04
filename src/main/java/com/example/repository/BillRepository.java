@@ -17,4 +17,11 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
 
     @Query("select b from Bill b where b.customer.idCustomer like %:id% ")
     Page<Bill> findByName(@Param("id") String id, Pageable pageable);
+
+    @Query("select b from Bill b where b.status = :status")
+    Page<Bill> findByStatus(@Param("status") int status, Pageable pageable);
+
+    @Query("select coalesce(sum(b.totalMoney), 0) from Bill b where b.status = 2")
+    Long getTotalRevenue();
+
 }

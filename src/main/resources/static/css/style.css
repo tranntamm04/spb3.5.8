@@ -1,0 +1,102 @@
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f5f6f8;
+}
+
+.auth-wrapper {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    width: 380px;
+    background: #fff;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+.auth-card h2 {
+    margin: 0 0 6px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.sub {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+    margin-top: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: 0.2s;
+}
+
+input:focus {
+    border-color: #999;
+}
+
+button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    background: #222;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #000;
+}
+
+.error {
+    background: #ffecec;
+    color: #d60000;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+.otp-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 18px 0;
+}
+
+.otp-input {
+    width: 48px;
+    height: 56px;
+    text-align: center;
+    font-size: 22px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: 0.2s;
+}
+
+.otp-input:focus {
+    border-color: #333;
+}

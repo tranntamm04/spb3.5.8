@@ -1,5 +1,6 @@
 package com.example.service.impl;
 
+import com.example.repository.EmployeeRepository;
 import lombok.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,45 +20,64 @@ import com.example.service.LoginService;
 @Service
 public class LoginServiceImpl implements LoginService {
     private final AuthenticationManager authenticationManager;
-
     private final JwtTokenUtil jwtTokenUtil;
-
+    private final EmployeeRepository employeeRepository;
     private final AccountService accountService;
 
     @Override
     public AccountResponse doLogin(String userName, String password) {
-        System.out.println();
+
         Authentication authentication;
         try {
-            // Xác thực từ username và password.
-            authentication = authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
         } catch (Exception e) {
             return null;
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         Account account = this.accountService.findById(userName);
-            if (account == null) {
-                return null;
-            }
+        if (account == null) {
+            return null;
+        }
 
         String jwt = jwtTokenUtil.generateJwtToken(userName);
+
         String role = "";
         for (GrantedAuthority authority : authentication.getAuthorities()) {
-            if ("ROLE_ADMIN".equals(authority.getAuthority())) {
+            String auth = authority.getAuthority();
+
+            if ("ROLE_ADMIN".equals(auth)) {
                 role = "ROLE_ADMIN";
                 break;
-            } else if ("ROLE_USER".equals(authority.getAuthority())) {
-                role = "ROLE_USER";
+            }
+
+            if ("ROLE_NV".equals(auth)) {
+                role = "ROLE_NV";
                 break;
             }
+
+            if ("ROLE_USER".equals(auth)) {
+                role = "ROLE_USER";
+            }
         }
+
         if (role.isEmpty()) {
             return null;
         }
-        return new AccountResponse(userName, jwt, role);
+
+        String positionName = null;
+
+        if ("ROLE_NV".equals(role) || "ROLE_ADMIN".equals(role)) {
+            var employee = employeeRepository.findByAccount_UserName(userName);
+            if (employee != null && employee.getPosition() != null) {
+                positionName = employee.getPosition().getPositionName();
+            }
+        }
+
+        return new AccountResponse(userName, jwt, role, positionName);
     }
+
 
     @Override
     public boolean doChangePassword(ChangePasswordForm form) {

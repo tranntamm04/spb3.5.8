@@ -17,7 +17,9 @@ public interface ProductService {
     void createProduct(ProductDTO dto);
     void updateProduct(ProductDTO dto, int id);
     Page<Product> getSearchItem(String itemSearch, Pageable pageable);
-    boolean importStock(int id, int quantity);
+    boolean importStock(int id, int quantity, String note);
     Product findByIdWithPromotion(int id);
     List<Product> findByTypeId(int typeId);
+    List<String> suggestKeyword(String keyword);
+    List<Product> suggestProduct(String keyword);
 }

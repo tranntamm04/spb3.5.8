@@ -20,20 +20,23 @@ import com.example.service.impl.AccountDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtRequestFilter jwtRequestFilter;
     private final AccountDetailsServiceImpl accountDetailsService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     public SecurityConfig(
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
             JwtRequestFilter jwtRequestFilter,
-            AccountDetailsServiceImpl accountDetailsService) {
+            AccountDetailsServiceImpl accountDetailsService,
+            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtRequestFilter = jwtRequestFilter;
         this.accountDetailsService = accountDetailsService;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
     @Bean
@@ -43,20 +46,13 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-
-        AuthenticationManagerBuilder builder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        builder
-            .userDetailsService(accountDetailsService)
-            .passwordEncoder(passwordEncoder());
-
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(accountDetailsService).passwordEncoder(passwordEncoder());
         return builder.build();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> {})
@@ -68,23 +64,28 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.PATCH, "/api/products/*/stock").permitAll()
                 .requestMatchers(
-                    "/login", "/register", "/random",
+                    "/login", "/register", "/random", "/forgot-password",
+                        "/verify-otp",
+                        "/reset-password", "/mail-template", "/css/**", "/js/**", "/images/**",
+                        "/oauth2/**",
+                        "/login/oauth2/**",
 
-                    "/api/employee/**",
 
-                    "/api/customer/**",
+                        "/api/customer/**",
 
                     "/api/products",
-                    "/api/products/*",
+                    "/api/products/{id}",
                     "/api/products/*/ratings",
-                    "/api/products/**",
 
                     "/api/promotion/**",
 
                     "/api/rating/*",
 
-                      "/api/chatbot/chat"
+                    "/api/bill/revenue",
+
+                    "/api/chatbot/chat"
                 ).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
@@ -92,17 +93,17 @@ public class SecurityConfig {
                 ).authenticated()
                 .requestMatchers(
                     "/api/productType/**",
-                    "/api/products/**",
+                    "/api/products/**", "/api/employees/*", "/api/employees/**",
                     "/api/bill/listBill", "/api/bill/listBillDetail", "/api/rating/*"
                 ).hasRole("ADMIN")
                 .anyRequest().authenticated()
-            );
+            )
+                .oauth2Login(oauth -> oauth
+                        .successHandler(oAuth2LoginSuccessHandler)
+                );
+        ;
 
-        http.addFilterBefore(
-                jwtRequestFilter,
-                UsernamePasswordAuthenticationFilter.class
-        );
-
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

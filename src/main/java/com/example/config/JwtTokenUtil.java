@@ -12,27 +12,20 @@ import java.util.Date;
 
 @Component
 public class JwtTokenUtil implements Serializable {
-    private static final Logger logger =
-            LoggerFactory.getLogger(JwtTokenUtil.class);
-    private static final long JWT_TOKEN_VALIDITY =
-            5 * 60 * 60 * 1000;
-    private static final Key SIGNING_KEY =
-            Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
+    private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000;
+    private static final Key SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     public String generateJwtToken(String username) {
-
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(
-                        new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY)
-                )
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
                 .signWith(SIGNING_KEY, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public String getUsernameFromJwtToken(String token) {
-
         return Jwts.parserBuilder()
                 .setSigningKey(SIGNING_KEY)
                 .build()

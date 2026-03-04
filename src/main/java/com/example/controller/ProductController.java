@@ -1,8 +1,12 @@
 package com.example.controller;
 
 import com.example.dto.ProductDTO;
+import com.example.dto.SuggestResponse;
+import com.example.entity.InventoryHistory;
 import com.example.entity.Product;
 import com.example.entity.Rating;
+import com.example.repository.InventoryHistoryRepository;
+import com.example.repository.ProductRepository;
 import com.example.service.ProductService;
 import com.example.service.RatingService;
 import jakarta.validation.*;
@@ -23,6 +27,8 @@ public class ProductController {
 
     private final ProductService productService;
     private final RatingService ratingService;
+    private final ProductRepository productRepository;
+    private final InventoryHistoryRepository inventoryHistoryRepository;
 
     @GetMapping
     public ResponseEntity<Page<Product>> getAllProducts(Pageable pageable) {
@@ -79,16 +85,42 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/suggest")
+    public ResponseEntity<?> suggest(@RequestParam String keyword){
+
+        List<String> keywords = productService.suggestKeyword(keyword);
+        List<Product> products = productService.suggestProduct(keyword);
+
+        return ResponseEntity.ok(
+                new SuggestResponse(keywords, products)
+        );
+    }
+
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<Void> importStock(@PathVariable int id, @RequestParam int quantity) {
-        return productService.importStock(id, quantity)
+    public ResponseEntity<Void> importStock(@PathVariable int id, @RequestParam int quantity, @RequestParam String note) {
+        return productService.importStock(id, quantity, note)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/inventory-history")
+    public ResponseEntity<List<InventoryHistory>> getAllInventoryHistory() {
+        return ResponseEntity.ok(inventoryHistoryRepository.findHistory());
     }
 
     @GetMapping("/{id}/ratings")
     public ResponseEntity<List<Rating>> getRatings(@PathVariable int id) {
         return ResponseEntity.ok(ratingService.findVisible(id)
         );
+    }
+
+    @GetMapping("/top-sold")
+    public List<Product> topSold() {
+        return productRepository.findTop5ByStatusOrderBySoldDesc(1);
+    }
+
+    @GetMapping("/top-rating")
+    public List<Product> topRating() {
+        return productRepository.findTop5ByStatusOrderByNumOfStarDesc(1);
     }
 }

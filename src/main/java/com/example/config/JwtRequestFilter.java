@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import org.springframework.lang.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -23,50 +23,36 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(JwtRequestFilter.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
     private final AccountDetailsServiceImpl accountDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
 
-    public JwtRequestFilter(AccountDetailsServiceImpl accountDetailsService,
-                            JwtTokenUtil jwtTokenUtil) {
+    public JwtRequestFilter(AccountDetailsServiceImpl accountDetailsService, JwtTokenUtil jwtTokenUtil) {
         this.accountDetailsService = accountDetailsService;
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
-
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-
             if (jwt != null && jwtTokenUtil.validateJwtToken(jwt)) {
 
-                String username =
-                        jwtTokenUtil.getUsernameFromJwtToken(jwt);
+                String username = jwtTokenUtil.getUsernameFromJwtToken(jwt);
 
-                UserDetails userDetails =
-                        accountDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = accountDetailsService.loadUserByUsername(username);
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
                                 userDetails.getAuthorities()
                         );
 
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
         } catch (Exception ex) {
@@ -78,18 +64,38 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+
         String path = request.getServletPath();
 
-        return path.equals("/login")
-                || path.equals("/register")
-                || path.startsWith("/product/")
-                || path.startsWith("/api/chat/");
+        return
+                // auth public
+                path.equals("/login")
+                        || path.equals("/register")
+
+                        // thymeleaf forgot password flow
+                        || path.equals("/forgot-password")
+                        || path.equals("/verify-otp")
+                        || path.equals("/reset-password")
+
+                        // mail template preview (nếu có)
+                        || path.equals("/mail-template")
+
+                        // static resources
+                        || path.startsWith("/css/")
+                        || path.startsWith("/js/")
+                        || path.startsWith("/images/")
+                        || path.startsWith("/assets/")
+
+                        // public api
+                        || path.startsWith("/api/products/")
+                        || path.startsWith("/api/promotion")
+                        || path.startsWith("/api/chatbot/chat");
     }
+
 
     private String parseJwt(HttpServletRequest request) {
 
-        String headerAuth =
-                request.getHeader(HttpHeaders.AUTHORIZATION);
+        String headerAuth = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (StringUtils.hasText(headerAuth)
                 && headerAuth.startsWith("Bearer ")) {
