@@ -13,9 +13,11 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "account")
 public class Account {
+
     @Id
     @Column(length = 50)
     private String userName;
+
     private String password;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
@@ -30,18 +32,23 @@ public class Account {
     @JsonIgnore
     Set<AccountRole> accountRoles;
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Cart cart;
+
     public Account(@NotBlank String userName, String password) {
         this.userName = userName;
         this.password = password;
     }
 
-    public Account(@NotBlank String userName, String password, Customer customer, Employee employee,
-            Set<AccountRole> accountRoles) {
+    public Account(@NotBlank String userName, String password,
+                   Customer customer,
+                   Employee employee,
+                   Set<AccountRole> accountRoles) {
         this.userName = userName;
         this.password = password;
         this.customer = customer;
         this.employee = employee;
         this.accountRoles = accountRoles;
     }
-
 }

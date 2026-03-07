@@ -21,6 +21,12 @@ public class PayPalController {
     @Value("${paypal.base.url}")
     private String baseUrl;
 
+    @Value("${paypal.return-url}")
+    private String returnUrl;
+
+    @Value("${paypal.cancel-url}")
+    private String cancelUrl;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     private String getAccessToken() {
@@ -64,8 +70,8 @@ public class PayPalController {
         body.put("purchase_units", List.of(purchaseUnit));
 
         Map<String, String> appContext = new HashMap<>();
-        appContext.put("return_url", "http://localhost:4200/payment-result");
-        appContext.put("cancel_url", "http://localhost:4200/payment-result");
+        appContext.put("return_url", returnUrl);
+        appContext.put("cancel_url", cancelUrl);
 
         body.put("application_context", appContext);
 

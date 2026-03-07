@@ -44,7 +44,10 @@ public class OAuth2LoginSuccessHandler
 
         String jwt = jwtTokenUtil.generateJwtToken(email);
 
-        response.sendRedirect("http://localhost:4200/oauth2-success" + "?token=" + jwt
+        response.sendRedirect(
+                "http://localhost:4200/oauth2-success"
+                        + "?token=" + jwt
+                        + "&username=" + email
                         + "&provider=" + provider.toLowerCase()
         );
     }

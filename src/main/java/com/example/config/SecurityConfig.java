@@ -72,7 +72,9 @@ public class SecurityConfig {
                         "/oauth2/**",
                         "/login/oauth2/**",
 
+                        "/chat/**",
 
+"/api/cart/**",
                         "/api/customer/**",
 
                     "/api/products",

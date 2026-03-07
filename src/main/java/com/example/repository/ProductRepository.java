@@ -56,15 +56,6 @@
         @Query("""
         select p
         from Product p
-        where p.status = 1
-          and p.productType.idType = 7
-        order by p.sold desc
-    """)
-        List<Product> findAccessoryForChatbot();
-
-        @Query("""
-        select p
-        from Product p
         where p.productType.idType = :typeId
           and p.status = 1
         order by p.idProduct
@@ -86,6 +77,28 @@
                 order by p.sold desc
             """)
         List<Product> suggestProduct(@Param("keyword") String keyword, Pageable pageable);
+
+        @Query("""
+    select p
+    from Product p
+    where p.price between :min and :max
+      and p.status = 1
+    order by p.sold desc
+""")
+        List<Product> findPhoneForChatbot(
+                @Param("min") int min,
+                @Param("max") int max
+        );
+
+        @Query("""
+    select p
+    from Product p
+    join p.productType pt
+    where lower(pt.nameType) like lower(concat('%',:brand,'%'))
+      and p.status = 1
+    order by p.sold desc
+""")
+        List<Product> findByBrandForChatbot(@Param("brand") String brand);
     }
 
 

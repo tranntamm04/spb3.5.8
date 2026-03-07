@@ -5,13 +5,14 @@ import org.springframework.stereotype.Service;
 import com.example.entity.Promotion;
 import com.example.repository.PromotionRepository;
 import com.example.service.PromotionService;
-
+import lombok.*;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class PromotionServiceImpl implements PromotionService {
-    @Autowired
-    private PromotionRepository promotionRepository;
+
+    private final PromotionRepository promotionRepository;
 
     @Override
     public Promotion savePromotion(Promotion promotion) {

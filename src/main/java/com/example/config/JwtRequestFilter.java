@@ -87,7 +87,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         || path.startsWith("/assets/")
 
                         // public api
-                        || path.startsWith("/api/products/")
+                        || path.equals("/api/products")
+                        || path.matches("/api/products/\\d+$")
+                        || path.matches("/api/products/\\d+/ratings$")
                         || path.startsWith("/api/promotion")
                         || path.startsWith("/api/chatbot/chat");
     }

@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -116,11 +117,23 @@ public class ProductController {
 
     @GetMapping("/top-sold")
     public List<Product> topSold() {
-        return productRepository.findTop5ByStatusOrderBySoldDesc(1);
+        List<Product> list = productRepository.findTop5ByStatusOrderBySoldDesc(1);
+        list.forEach(p -> {
+            if (p.getPromotion() != null && p.getPromotion().getDateEnd().isBefore(LocalDate.now())) {
+                p.setPromotion(null);
+            }
+        });
+        return list;
     }
 
     @GetMapping("/top-rating")
     public List<Product> topRating() {
-        return productRepository.findTop5ByStatusOrderByNumOfStarDesc(1);
+        List<Product> list = productRepository.findTop5ByStatusOrderByNumOfStarDesc(1);
+        list.forEach(p -> {
+            if (p.getPromotion() != null && p.getPromotion().getDateEnd().isBefore(LocalDate.now())) {
+                p.setPromotion(null);
+            }
+        });
+        return list;
     }
 }

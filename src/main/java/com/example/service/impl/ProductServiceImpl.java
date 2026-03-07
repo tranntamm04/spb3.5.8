@@ -28,19 +28,38 @@ public class ProductServiceImpl implements ProductService {
     private final ProductTypeRepository productTypeRepository;
     private final InventoryHistoryRepository inventoryHistoryRepository;
 
+    private void removeExpiredPromotion(Product product){
+
+        if(product != null && product.getPromotion() != null){
+            if(product.getPromotion().getDateEnd().isBefore(java.time.LocalDate.now())){
+                product.setPromotion(null);
+            }
+
+        }
+    }
+
     @Override
     public Page<Product> getAllProduct(Pageable pageable) {
-        return productRepository.findAll(pageable);
+        Page<Product> page = productRepository.findAll(pageable);
+        page.forEach(this::removeExpiredPromotion);
+
+        return page;
     }
 
     @Override
     public List<Product> findByTypeId(int typeId) {
-        return productRepository.findByTypeId(typeId);
+        List<Product> list = productRepository.findByTypeId(typeId);
+        list.forEach(this::removeExpiredPromotion);
+
+        return list;
     }
 
     @Override
     public Product findById(int id) {
-        return productRepository.findById(id).orElse(null);
+        Product p = productRepository.findById(id).orElse(null);
+        removeExpiredPromotion(p);
+
+        return p;
     }
 
     @Override
@@ -113,7 +132,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> getSearchItem(String itemSearch, Pageable pageable) {
-        return productRepository.searchItem(itemSearch, pageable);
+        Page<Product> page = productRepository.searchItem(itemSearch, pageable);
+        page.forEach(this::removeExpiredPromotion);
+
+        return page;
     }
 
     @Transactional
@@ -166,7 +188,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product findByIdWithPromotion(int id) {
-        return productRepository.findByIdWithPromotion(id);
+        Product product = productRepository.findByIdWithPromotion(id);
+        removeExpiredPromotion(product);
+
+        return product;
     }
 
     @Override
@@ -176,6 +201,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> suggestProduct(String keyword) {
-        return productRepository.suggestProduct(keyword, PageRequest.of(0,4));
+        List<Product> list = productRepository.suggestProduct(keyword, PageRequest.of(0,4));
+        list.forEach(this::removeExpiredPromotion);
+
+        return list;
     }
 }
