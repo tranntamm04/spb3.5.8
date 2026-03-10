@@ -22,4 +22,5 @@ public interface ProductService {
     List<Product> findByTypeId(int typeId);
     List<String> suggestKeyword(String keyword);
     List<Product> suggestProduct(String keyword);
+    Page<Product> getAccessories(Pageable pageable);
 }

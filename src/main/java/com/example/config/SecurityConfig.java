@@ -74,20 +74,19 @@ public class SecurityConfig {
 
                         "/chat/**",
 
-"/api/cart/**",
+                        "/api/cart/**",
                         "/api/customer/**",
 
-                    "/api/products",
-                    "/api/products/{id}",
-                    "/api/products/*/ratings",
+                        "/api/products",
+                        "/api/products/{id}",
+                        "/api/products/*/ratings",
+                        "/api/promotion/**",
 
-                    "/api/promotion/**",
+                        "/api/rating/*",
 
-                    "/api/rating/*",
+                        "/api/bill/revenue",
 
-                    "/api/bill/revenue",
-
-                    "/api/chatbot/chat"
+                        "/api/chatbot/chat"
                 ).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(

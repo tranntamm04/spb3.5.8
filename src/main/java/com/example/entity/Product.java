@@ -30,6 +30,7 @@ public class Product {
     @Column(name = "entered_date", updatable = false)
     private LocalDate enteredDate;
 
+    @Column(length = 400)
     private String description;
     private int sold;
 

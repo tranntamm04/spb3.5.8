@@ -73,7 +73,13 @@ public class ChatbotServiceImpl implements ChatbotService {
                     "Điện thoại OPPO nổi bật:\nClick sản phẩm để xem chi tiết"
             );
         }
-
+        else if (containsAny(q, "phu kien", "phụ kiện")) {
+            List<Product> products = productRepository.findByBrandForChatbot("Phụ kiện");
+            answer = buildProductAnswer(
+                    products,
+                    "Điện thoại OPPO nổi bật:\nClick sản phẩm để xem chi tiết"
+            );
+        }
         else if (containsAny(q, "vivo")) {
             List<Product> products = productRepository.findByBrandForChatbot("Vivo");
             answer = buildProductAnswer(
@@ -135,7 +141,7 @@ public class ChatbotServiceImpl implements ChatbotService {
             [SUGGEST]Dưới 20 triệu có máy nào tốt?[/SUGGEST]
             [SUGGEST]Điện thoại chơi game ngon[/SUGGEST]
             [SUGGEST]Sản phẩm bán chạy nhất[/SUGGEST]
-            [SUGGEST]Smartphone chụp ảnh đẹp[/SUGGEST]
+            [SUGGEST]Phụ kiện điện thoại[/SUGGEST]
             """;
         }
 

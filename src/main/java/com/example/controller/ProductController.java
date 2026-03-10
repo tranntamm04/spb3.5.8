@@ -88,12 +88,10 @@ public class ProductController {
 
     @GetMapping("/suggest")
     public ResponseEntity<?> suggest(@RequestParam String keyword){
-
         List<String> keywords = productService.suggestKeyword(keyword);
         List<Product> products = productService.suggestProduct(keyword);
 
-        return ResponseEntity.ok(
-                new SuggestResponse(keywords, products)
+        return ResponseEntity.ok(new SuggestResponse(keywords, products)
         );
     }
 
@@ -135,5 +133,10 @@ public class ProductController {
             }
         });
         return list;
+    }
+
+    @GetMapping("/accessories")
+    public Page<Product> getAccessories(Pageable pageable) {
+        return productService.getAccessories(pageable);
     }
 }

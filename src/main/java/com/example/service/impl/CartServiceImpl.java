@@ -91,16 +91,23 @@ public class CartServiceImpl implements CartService {
     }
 
     private int getFinalPrice(Product product) {
-        int price = product.getPrice();
-        Promotion promotion = product.getPromotion();
+        if (product.getPromotion() == null) {
+            return product.getPrice();
+        }
 
-        if (promotion == null) return price;
-        if ("PERCENT".equalsIgnoreCase(promotion.getTypePromotion())) {
-            return (int) Math.round(price * (1 - promotion.getPromotionalValue() / 100.0) - 1000);
+        Promotion promo = product.getPromotion();
+        double price = product.getPrice();
+
+        if ("PERCENT".equalsIgnoreCase(promo.getTypePromotion())) {
+            price = price * (1 - promo.getPromotionalValue() / 100.0);
         }
-        if ("MONEY".equalsIgnoreCase(promotion.getTypePromotion())) {
-            return Math.max(price - (int) promotion.getPromotionalValue(), 0);
+        else if ("MONEY".equalsIgnoreCase(promo.getTypePromotion())) {
+            price = Math.max(price - promo.getPromotionalValue(), 0);
         }
-        return price;
+
+        if (price < 200_000) {
+            return (int) (Math.round(price / 1000.0) * 1000);
+        }
+        return (int) (Math.round(price / 10000.0) * 10000);
     }
 }

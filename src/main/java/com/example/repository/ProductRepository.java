@@ -99,6 +99,17 @@
     order by p.sold desc
 """)
         List<Product> findByBrandForChatbot(@Param("brand") String brand);
+
+
+        @Query("""
+    select p
+    from Product p
+    join p.productType pt
+    where pt.nameType = 'Phụ kiện'
+      and p.status = 1
+    order by p.idProduct
+""")
+        Page<Product> findAccessories(Pageable pageable);
     }
 
 

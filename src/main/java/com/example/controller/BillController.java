@@ -85,8 +85,12 @@ public class BillController {
 
     @PutMapping("/duyet/{id}")
     public ResponseEntity<?> approveBill(@PathVariable int id) {
-        billService.approveBill(id);
-        return ResponseEntity.ok().build();
+        try {
+            billService.approveBill(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/searchByName")

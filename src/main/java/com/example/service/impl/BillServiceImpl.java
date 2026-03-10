@@ -79,15 +79,8 @@ public class BillServiceImpl implements BillService {
         for (ProductDTO p : billDTO.getObject()) {
             Product product = productService.findById(p.getIdProduct());
             ContractDetail detail = new ContractDetail(
-                    new BillProductKey(
-                            savedBill.getIdBill(),
-                            product.getIdProduct()
-                    ),
-                    savedBill,
-                    product,
-                    p.getQuantity(),
-                    getFinalPrice(product)
-            );
+                    new BillProductKey(savedBill.getIdBill(), product.getIdProduct()),
+                    savedBill, product, p.getQuantity(), getFinalPrice(product));
             contractDetailRepository.save(detail);
         }
         return savedBill;
@@ -120,16 +113,24 @@ public class BillServiceImpl implements BillService {
     }
 
     private int getFinalPrice(Product product) {
-        int price = product.getPrice();
-        Promotion promotion = product.getPromotion();
-        if (promotion == null) return price;
-        if ("PERCENT".equalsIgnoreCase(promotion.getTypePromotion())) {
-            return (int) Math.round(price * (1 - promotion.getPromotionalValue() / 100.0) - 1000);
+        if (product.getPromotion() == null) {
+            return product.getPrice();
         }
-        if ("MONEY".equalsIgnoreCase(promotion.getTypePromotion())) {
-            return Math.max(price - (int) promotion.getPromotionalValue(), 0);
+
+        Promotion promo = product.getPromotion();
+        double price = product.getPrice();
+
+        if ("PERCENT".equalsIgnoreCase(promo.getTypePromotion())) {
+            price = price * (1 - promo.getPromotionalValue() / 100.0);
         }
-        return price;
+        else if ("MONEY".equalsIgnoreCase(promo.getTypePromotion())) {
+            price = Math.max(price - promo.getPromotionalValue(), 0);
+        }
+
+        if (price < 200_000) {
+            return (int) (Math.round(price / 1000.0) * 1000);
+        }
+        return (int) (Math.round(price / 10000.0) * 10000);
     }
 
     @Override

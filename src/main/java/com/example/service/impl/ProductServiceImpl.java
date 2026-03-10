@@ -131,6 +131,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<Product> getAccessories(Pageable pageable) {
+        return productRepository.findAccessories(pageable);
+    }
+
+    @Override
     public Page<Product> getSearchItem(String itemSearch, Pageable pageable) {
         Page<Product> page = productRepository.searchItem(itemSearch, pageable);
         page.forEach(this::removeExpiredPromotion);
